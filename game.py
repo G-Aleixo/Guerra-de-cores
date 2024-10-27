@@ -46,11 +46,22 @@ class Game:
             self.add_point_to(player, [pos[0] + 1, pos[1]])
             self.add_point_to(player, [pos[0], pos[1] + 1])
     def display_board(self) -> None:
+        # Print header row with column numbers
+        print(" ", end="")
+        for col in range(1, len(self.board) + 1):
+            print(f" {col:2} ", end="")
+        print()
+        
         for i in range(len(self.board)):
+            # Print row number
+            print(f"{i + 1:2} ", end="")
+            
             for j in range(len(self.board)):
                 point_string = (self.board[i][j] & 0b11) + 1 if self.board[i][j] != 0 else 0
-                print(f"\033[{30 + (self.board[i][j] >> 2)}m{point_string}\033[39m", end=" ")
+                print(f"\033[{30 + (self.board[i][j] >> 2)}m{point_string}\033[39m", end=" | ")
             print()
+            if i < len(self.board) - 1:
+                print("   " + "-" * (len(self.board) * 5 - 1))
     def has_won(self) -> list[bool, int]:
         player_count = [0, 0]
         for i in range(len(self.board)):
