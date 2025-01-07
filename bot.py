@@ -1,12 +1,24 @@
 from math import inf
 from new_game import *
-
+from time import time
 
 MAX = 1
 MIN = -1
-MAX_DEPTH = 7
+MAX_DEPTH = 9 # should work good? didn't test
 
 possibilities_searched = 0
+branches_pruned = 0
+
+def get_positional_scores(board_size: int) -> list[list[int]]:
+    values = [[2 for _ in range(board_size)] for _ in range(board_size)]
+    
+    for i in range(board_size):
+        for j in range(board_size):
+            if i != 0 and i != board_size - 1:
+                values[i][j] += 1
+            if j != 0 and j != board_size - 1:
+                values[i][j] += 1
+    return values
 
 def get_possible_moves(board: Board, player: int):
     possible_moves = []
@@ -18,16 +30,30 @@ def get_possible_moves(board: Board, player: int):
     return possible_moves
 
 def get_score(board: Board):
-    score = get_points(board)
+    win = get_points(board)
     
-    if score[0] == 0:
+    if win[0] == 0:
         return +inf
-    elif score[1] == 0:
+    elif win[1] == 0:
         return -inf
     
-    return -score[0] + score[1]
+    pos_mult = get_positional_scores(len(board))
+    
+    score = 0
+    
+    for i in range(len(board)):
+        for j in range(len(board)):
+            if board[i][j] < 0:
+                score -= board[i][j]**2 * pos_mult[i][j] / 4
+            elif board[i][j] > 0:
+                score += board[i][j]**2 * pos_mult[i][j] / 4
+    
+    return score
+    
 
 def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int = +inf):
+    global possibilities_searched, branches_pruned
+    
     if player == MAX:
         best = [-1, -1, -inf, +inf]
     else:
@@ -40,15 +66,14 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
     possible_moves = get_possible_moves(board, player)
     
     for move in possible_moves:
-        global possibilities_searched
         possibilities_searched += 1
         
         x, y = move[0], move[1]
-        minimax_board = deepcopy(board)
-        minimax_board[x][y] = add_point(minimax_board[x][y], player)
-        minimax_board, won = resolve_board(minimax_board)
-        # print(" "*(4-depth), minimax_board, won)
+        changes = apply_move(board, move, player)
+        minimax_board, won = resolve_board(board)
         score = minimax(minimax_board, -player, depth+1, alpha, beta)
+        undo_changes(board, changes)
+        
         score[0], score[1] = x, y
 
         if player == MAX:
@@ -69,46 +94,56 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
             
             beta = min(beta, best[2])
         if beta <= alpha:
+            branches_pruned += 1
             break
         
     return best
 
-board_size = int(input("What is the board size: "))
-board = []
-print("insert the board data below")
-print("positive numbers for player points and negative for bot points")
-for i in range(board_size):
-    board.append([int(x) for x in input().split()])
+if __name__ == "__main__":
+    print("Play against the minimax bot")
 
-def initiate_game_loop(board):
-    global possibilities_searched
-    
-    while True:
-        
-        if has_lost(get_points(board)): break
-        
-        print("reccomended move:")
-        print(minimax(board, MAX, 0)[0:4])
-        print(f"searched {possibilities_searched} possibilities")
-        possibilities_searched = 0
-        
-        move = [int(x) for x in input("your move:").split()]
-        
-        board[move[0]][move[1]] += 1
-        board = resolve_board(board)[0]
-        
-        # reference board
-        for i in board:
-            print(i)
-        
-        move = [int(x) for x in input("opponent move:").split()]
-        
-        board[move[0]][move[1]] -= 1
-        board = resolve_board(board)[0]
-    
-    if get_points(board)[0] == 0:
-        print("You won!")
-    if get_points(board)[1] == 0:
-        print("You lost :(")
+    board_size = int(input("What is the board size: "))
+    board = []
+    print("insert the board data below")
+    print("positive numbers for player points and negative for bot points")
+    for i in range(board_size):
+        board.append([int(x) for x in input().split()])
 
-initiate_game_loop(board)
+    print(get_score(board))
+
+    def initiate_game_loop(board):
+        global possibilities_searched, branches_pruned
+        
+        while True:
+            move = [int(x) for x in input("your move:").split()]
+            
+            board[move[0]][move[1]] += 1
+            board = resolve_board(board)[0]
+            
+            if has_lost(get_points(board)): break
+            
+            print("optimal enemy move:")
+            before_time = time()
+            result = minimax(board, MIN, 0)
+            print(result)
+            print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
+            possibilities_searched = 0
+            branches_pruned = 0
+            
+            move = result[0:2]
+            
+            board[move[0]][move[1]] -= 1
+            board = resolve_board(board)[0]
+            
+            # reference board
+            for i in board:
+                print(i)
+            
+            if has_lost(get_points(board)): break
+        
+        if get_points(board)[0] == 0:
+            print("You won!")
+        if get_points(board)[1] == 0:
+            print("You lost :(")
+
+    initiate_game_loop(board)

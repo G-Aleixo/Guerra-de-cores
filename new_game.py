@@ -24,49 +24,62 @@ def get_points(board: Board) -> int:
             elif sign == 1: score[1] += 1
     
     return score
+
 def has_lost(score: list[int, int]):
     if score[0] == 0 or score[1] == 0:
         return True
 
-def update_board(board: Board) -> Board:
-    """Does a single update tick of the board
+def undo_changes(board: Board, changes: list[tuple[int, int, int]]):
+    """Undo the changes made to the board."""
+    for x, y, value in changes:
+        board[x][y] = value
 
-    Args:
-        board (Board): Board to be updated
+def apply_move(board: Board, move: list[int], player: int) -> list[tuple[int, int, int]]:
+    """Apply a move to the board and return the changes made."""
+    changes = []
+    x, y = move
+    changes.append((x, y, board[x][y]))
+    board[x][y] = add_point(board[x][y], player)
+    return changes
 
-    Returns:
-        Board: Updated board
-    """
-    updated_board = deepcopy(board)
-    
+def update_board(board: Board) -> list[tuple[int, int, int]]:
+    """Does a single update tick of the board and returns the changes made."""
+    changes = []
     board_size = len(board)
+    
     for i in range(board_size):
         for j in range(board_size):
             if abs(board[i][j]) >= 4:
-                sign = get_sign(updated_board[i][j])
-                updated_board[i][j] -= 4 * sign
+                sign = get_sign(board[i][j])
+                changes.append((i, j, board[i][j]))
+                board[i][j] -= 4 * sign
                 
-                if not out_of_bounds([i+1, j], board_size): updated_board[i+1][j] = add_point(board[i+1][j], sign)
-                if not out_of_bounds([i-1, j], board_size): updated_board[i-1][j] = add_point(board[i-1][j], sign)
-                if not out_of_bounds([i, j+1], board_size): updated_board[i][j+1] = add_point(board[i][j+1], sign)
-                if not out_of_bounds([i, j-1], board_size): updated_board[i][j-1] = add_point(board[i][j-1], sign)
-    return updated_board
+                if not out_of_bounds([i+1, j], board_size):
+                    changes.append((i+1, j, board[i+1][j]))
+                    board[i+1][j] = add_point(board[i+1][j], sign)
+                if not out_of_bounds([i-1, j], board_size):
+                    changes.append((i-1, j, board[i-1][j]))
+                    board[i-1][j] = add_point(board[i-1][j], sign)
+                if not out_of_bounds([i, j+1], board_size):
+                    changes.append((i, j+1, board[i][j+1]))
+                    board[i][j+1] = add_point(board[i][j+1], sign)
+                if not out_of_bounds([i, j-1], board_size):
+                    changes.append((i, j-1, board[i][j-1]))
+                    board[i][j-1] = add_point(board[i][j-1], sign)
+    
+    return changes
 
 def resolve_board(board: Board) -> list[Board, Literal[-1, 1, 0]]:
-    """Updates the board until either a player has won or there is nothing to update
-
-    Args:
-        board (Board): Board to be resolved
-    """
+    """Updates the board until either a player has won or there is nothing to update."""
     temp_board = deepcopy(board)
     
-    new_board = update_board(temp_board)
-    while temp_board != new_board and (get_points(new_board)[0] != 0 and get_points(new_board)[1] != 0):
-        temp_board, new_board = new_board, update_board(new_board)
+    while True:
+        changes = update_board(temp_board)
+        if not changes:
+            break
+        if get_points(temp_board)[0] == 0:
+            return [temp_board, 1]
+        elif get_points(temp_board)[1] == 0:
+            return [temp_board, -1]
     
-    if get_points(new_board)[0] == 0:
-        return [new_board, 1]
-    elif get_points(new_board)[1] == 0:
-        return [new_board, -1]
-    
-    return [new_board, 0]
+    return [temp_board, 0]
