@@ -1,73 +1,85 @@
-position = list[int, int]
+from copy import deepcopy
+from typing import Literal
 
-# Board data is stored in an int as playernumber << 2 + points, with 0 points acctually being 1 point and to represent actual zero points just use a value of zero
-# n: player number
-# p: point data
-# nnnnnnpp
-# May change if the point limit changes
+Board = list[list[int]]
 
-def is_inside_box(box_size: list[int, int], pos: position) -> bool:
-    if pos[0] < 0 or pos[1] < 0: return False
-    if pos[0] >= box_size or pos[1] >= box_size: return False
-    return True
+def out_of_bounds(pos: list[int, int], size: int) -> bool:
+    return (pos[0] < 0 or pos[1] < 0) or (pos[0] >= size or pos[1] >= size)
 
-class Game:
-    def __init__(self, board_size: int, player_amount: int = 2) -> None:
-        self.start: bool = True
-        self.board = [[0 for _ in range(board_size)] for _ in range(board_size)]
-        self.player_amount = 2
-        
-        self.__POINT_LIMIT = 4
-    def setup_game(self, player1: position, player2: position) -> None:
-        """
-        Sets the player's starting points starting with player 1 and then player 2\n
-        WARNING: Validate the players positions before using this function.
+def get_sign(number: int) -> Literal[-1, 1, 0]:
+    if number < 0: return -1
+    if number > 0: return 1
+    return 0
 
-        Args:
-            player1 (position): _description_
-            player2 (position): _description_
-        """
-        self.board[player1[0]][player1[1]] = 1 << 2 | self.__POINT_LIMIT - 2
-        self.board[player2[0]][player2[1]] = 2 << 2 | self.__POINT_LIMIT - 2
-    def add_point_to(self, player: int, pos: position) -> None:
-        if not is_inside_box(len(self.board), pos):
-            return
-        if self.board[pos[0]][pos[1]] == 0:
-            self.board[pos[0]][pos[1]] = player << 2
-        else:
-            self.board[pos[0]][pos[1]] = player << 2 | ( 0b11 & (self.board[pos[0]][pos[1]] + 1))
-        
-        if self.board[pos[0]][pos[1]] & 0b11 >= self.__POINT_LIMIT - 1:
-            self.board[pos[0]][pos[1]] = 0
-            
-            #TODO: Change from recursive to iterative function
-            self.add_point_to(player, [pos[0] - 1, pos[1]])
-            self.add_point_to(player, [pos[0], pos[1] - 1])
-            self.add_point_to(player, [pos[0] + 1, pos[1]])
-            self.add_point_to(player, [pos[0], pos[1] + 1])
-    def display_board(self) -> None:
-        # Print header row with column numbers
-        print(" ", end="")
-        for col in range(1, len(self.board) + 1):
-            print(f" {col:2} ", end="")
-        print()
-        
-        for i in range(len(self.board)):
-            # Print row number
-            print(f"{i + 1:2} ", end="")
-            
-            for j in range(len(self.board)):
-                point_string = (self.board[i][j] & 0b11) + 1 if self.board[i][j] != 0 else 0
-                print(f"\033[{30 + (self.board[i][j] >> 2)}m{point_string}\033[39m", end=" | ")
-            print()
-            if i < len(self.board) - 1:
-                print("   " + "-" * (len(self.board) * 5 - 1))
-    def has_won(self) -> list[bool, int]:
-        player_count = [0, 0]
-        for i in range(len(self.board)):
-            for j in range(len(self.board)):
-                if self.board[i][j] >> 2 != 0: player_count[(self.board[i][j] >> 2) - 1] += 1
-                if player_count[0] != 0 and player_count[1] != 0:
-                    return [False, 0]
-        if player_count[0] != 0: return [True, 1]
-        return [True, 2]
+def add_point(value: int, player: int) -> int:
+    return (abs(value) + 1) * player
+
+def get_points(board: Board) -> int:
+    score = [0, 0]
+    
+    for i in range(len(board)):
+        for j in range(len(board)):
+            sign = get_sign(board[i][j])
+            if sign == -1: score[0] += 1
+            elif sign == 1: score[1] += 1
+    
+    return score
+
+def has_lost(score: list[int, int]):
+    if score[0] == 0 or score[1] == 0:
+        return True
+
+def undo_changes(board: Board, changes: list[tuple[int, int, int]]):
+    """Undo the changes made to the board."""
+    for x, y, value in changes:
+        board[x][y] = value
+
+def apply_move(board: Board, move: list[int], player: int) -> list[tuple[int, int, int]]:
+    """Apply a move to the board and return the changes made."""
+    changes = []
+    x, y = move
+    changes.append((x, y, board[x][y]))
+    board[x][y] = add_point(board[x][y], player)
+    return changes
+
+def update_board(board: Board) -> list[tuple[int, int, int]]:
+    """Does a single update tick of the board and returns the changes made."""
+    changes = []
+    board_size = len(board)
+    
+    for i in range(board_size):
+        for j in range(board_size):
+            if abs(board[i][j]) >= 4:
+                sign = get_sign(board[i][j])
+                changes.append((i, j, board[i][j]))
+                board[i][j] -= 4 * sign
+                
+                if not out_of_bounds([i+1, j], board_size):
+                    changes.append((i+1, j, board[i+1][j]))
+                    board[i+1][j] = add_point(board[i+1][j], sign)
+                if not out_of_bounds([i-1, j], board_size):
+                    changes.append((i-1, j, board[i-1][j]))
+                    board[i-1][j] = add_point(board[i-1][j], sign)
+                if not out_of_bounds([i, j+1], board_size):
+                    changes.append((i, j+1, board[i][j+1]))
+                    board[i][j+1] = add_point(board[i][j+1], sign)
+                if not out_of_bounds([i, j-1], board_size):
+                    changes.append((i, j-1, board[i][j-1]))
+                    board[i][j-1] = add_point(board[i][j-1], sign)
+    
+    return changes
+
+def resolve_board(board: Board) -> list[Board, Literal[-1, 1, 0]]:
+    """Updates the board until either a player has won or there is nothing to update."""
+    temp_board = deepcopy(board)
+    
+    while True:
+        changes = update_board(temp_board)
+        if not changes:
+            break
+        if get_points(temp_board)[0] == 0:
+            return [temp_board, 1]
+        elif get_points(temp_board)[1] == 0:
+            return [temp_board, -1]
+    
+    return [temp_board, 0]

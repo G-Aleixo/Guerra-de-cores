@@ -1,5 +1,5 @@
 from math import inf
-from new_game import *
+from game import *
 from time import time
 
 MAX = 1
