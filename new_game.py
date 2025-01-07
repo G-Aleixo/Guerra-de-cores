@@ -61,4 +61,9 @@ def resolve_board(board: Board) -> list[Board, Literal[-1, 1, 0]]:
     while temp_board != new_board:
         temp_board, new_board = new_board, update_board(new_board)
     
+    if get_points(new_board)[0] == 0:
+        return [new_board, 1]
+    elif get_points(new_board)[1] == 0:
+        return [new_board, -1]
+    
     return [new_board, 0]
