@@ -84,6 +84,9 @@ def initiate_game_loop(board):
     global possibilities_searched
     
     while True:
+        
+        if has_lost(get_points(board)): break
+        
         print("reccomended move:")
         print(minimax(board, MAX, 0)[0:4])
         print(f"searched {possibilities_searched} possibilities")
@@ -102,5 +105,10 @@ def initiate_game_loop(board):
         
         board[move[0]][move[1]] -= 1
         board = resolve_board(board)[0]
+    
+    if get_points(board)[0] == 0:
+        print("You won!")
+    if get_points(board)[1] == 0:
+        print("You lost :(")
 
 initiate_game_loop(board)
