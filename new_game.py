@@ -14,7 +14,7 @@ def get_sign(number: int) -> Literal[-1, 1, 0]:
 def add_point(value: int, player: int) -> int:
     return (abs(value) + 1) * player
 
-def has_won(board: Board) -> int:
+def get_points(board: Board) -> int:
     score = [0, 0]
     
     for i in range(len(board)):
@@ -24,6 +24,9 @@ def has_won(board: Board) -> int:
             elif sign == 1: score[1] += 1
     
     return score
+def has_lost(score: list[int, int]):
+    if score[0] == 0 or score[1] == 0:
+        return True
 
 def update_board(board: Board) -> Board:
     """Does a single update tick of the board
@@ -58,7 +61,7 @@ def resolve_board(board: Board) -> list[Board, Literal[-1, 1, 0]]:
     temp_board = deepcopy(board)
     
     new_board = update_board(temp_board)
-    while temp_board != new_board:
+    while temp_board != new_board and (get_points(new_board)[0] != 0 and get_points(new_board)[1] != 0):
         temp_board, new_board = new_board, update_board(new_board)
     
     if get_points(new_board)[0] == 0:
