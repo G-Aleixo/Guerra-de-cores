@@ -6,6 +6,8 @@ MAX = 1
 MIN = -1
 MAX_DEPTH = 9 # should work good? didn't test
 
+DEBUG = False
+
 possibilities_searched = 0
 branches_pruned = 0
 
@@ -74,10 +76,9 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
         possible_moves = get_possible_moves(board, player, True)
     else:
         possible_moves = get_possible_moves(board, player)
-    print(possible_moves)
     
     for move in possible_moves:
-        possibilities_searched += 1
+        if DEBUG: possibilities_searched += 1
         
         x, y = move[0], move[1]
         changes = apply_move(board, move, player)
@@ -105,22 +106,12 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
             
             beta = min(beta, best[2])
         if beta <= alpha:
-            branches_pruned += 1
+            if DEBUG: branches_pruned += 1
             break
         
     return best
 
 if __name__ == "__main__":
-    print("Play against the minimax bot")
-
-    board_size = int(input("What is the board size: "))
-    board = []
-    print("insert the board data below")
-    print("positive numbers for player points and negative for bot points")
-    for i in range(board_size):
-        board.append([int(x) for x in input().split()])
-
-    print(get_score(board))
 
     def initiate_game_loop(board):
         global possibilities_searched, branches_pruned
@@ -128,13 +119,15 @@ if __name__ == "__main__":
         move = [int(x) for x in input("your move:").split()]
         board[move[0]][move[1]] += 3
         
-        print("optimal enemy move:")
-        before_time = time()
+        if DEBUG:
+            print("optimal enemy move:")
+            before_time = time()
         result = minimax(board, MIN, 0, moves_passed=1)
-        print(result)
-        print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
-        possibilities_searched = 0
-        branches_pruned = 0
+        if DEBUG:
+            print(result)
+            print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
+            possibilities_searched = 0
+            branches_pruned = 0
         
         move = result[0:2]
         
