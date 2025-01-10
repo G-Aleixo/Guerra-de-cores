@@ -20,8 +20,15 @@ def get_positional_scores(board_size: int) -> list[list[int]]:
                 values[i][j] += 1
     return values
 
-def get_possible_moves(board: Board, player: int):
+def get_possible_moves(board: Board, player: int, is_first_move: bool = False):
     possible_moves = []
+    
+    if is_first_move:
+        for i in range(len(board)):
+            for j in range(len(board)):
+                if board[i][j] == 0:
+                    possible_moves.append([i, j])
+        return possible_moves
     
     for i in range(len(board)):
         for j in range(len(board)):
@@ -51,7 +58,7 @@ def get_score(board: Board):
     return score
     
 
-def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int = +inf):
+def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int = +inf, moves_passed: int = 2):
     global possibilities_searched, branches_pruned
     
     if player == MAX:
@@ -60,10 +67,14 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
         best = [-1, -1, +inf, +inf]
     # [x, y, score, depth]
         
-    if depth >= MAX_DEPTH or has_lost(get_points(board)):
+    if depth >= MAX_DEPTH or (has_lost(get_points(board)) and not moves_passed < 2):
         return [-1, -1, get_score(board), depth]
     
-    possible_moves = get_possible_moves(board, player)
+    if moves_passed < 2:
+        possible_moves = get_possible_moves(board, player, True)
+    else:
+        possible_moves = get_possible_moves(board, player)
+    print(possible_moves)
     
     for move in possible_moves:
         possibilities_searched += 1
@@ -71,7 +82,7 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
         x, y = move[0], move[1]
         changes = apply_move(board, move, player)
         minimax_board, won = resolve_board(board)
-        score = minimax(minimax_board, -player, depth+1, alpha, beta)
+        score = minimax(minimax_board, -player, depth+1, alpha, beta, moves_passed + 1)
         undo_changes(board, changes)
         
         score[0], score[1] = x, y
@@ -113,6 +124,26 @@ if __name__ == "__main__":
 
     def initiate_game_loop(board):
         global possibilities_searched, branches_pruned
+        
+        move = [int(x) for x in input("your move:").split()]
+        board[move[0]][move[1]] += 3
+        
+        print("optimal enemy move:")
+        before_time = time()
+        result = minimax(board, MIN, 0, moves_passed=1)
+        print(result)
+        print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
+        possibilities_searched = 0
+        branches_pruned = 0
+        
+        move = result[0:2]
+        
+        board[move[0]][move[1]] -= 3
+        board = resolve_board(board)[0]
+        
+        # reference board
+        for i in board:
+            print(i)
         
         while True:
             move = [int(x) for x in input("your move:").split()]

@@ -39,6 +39,11 @@ def apply_move(board: Board, move: list[int], player: int) -> list[tuple[int, in
     changes = []
     x, y = move
     changes.append((x, y, board[x][y]))
+    changes.append((x, y, board[x][y]))
+    changes.append((x, y, board[x][y]))
+    if board[x][y] == 0:
+        board[x][y] = add_point(board[x][y], player)
+        board[x][y] = add_point(board[x][y], player)
     board[x][y] = add_point(board[x][y], player)
     return changes
 
