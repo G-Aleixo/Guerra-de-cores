@@ -33,8 +33,8 @@ gamemode = int(input(""))
 print("""\
 Do you want to start from a specific position?
 [Y]es/[N]o""")
-from_start: bool = True if input("").lower() == "y" else False
-if from_start:
+specific_pos: bool = True if input("").lower() == "y" else False
+if specific_pos:
     board_size = int(input("What is the board size: "))
     board = []
     print("\nInsert the board data below")
@@ -47,7 +47,7 @@ else:
 
 match gamemode:
     case 1:
-        if not from_start:
+        if not specific_pos:
             move = [int(x) for x in input("Your move:").split()]
             board[move[0]][move[1]] += 3
             
@@ -105,3 +105,43 @@ match gamemode:
             print("You won!")
         if get_points(board)[1] == 0:
             print("You lost :(")
+    
+    case 3:
+        if not specific_pos:
+            move = [int(x) for x in input("First player move:").split()]
+            board[move[0]][move[1]] += 3
+            
+            move = [int(x) for x in input("Second player move:").split()]
+            board[move[0]][move[1]] -= 3
+            
+        while True:
+            # reference board
+            for i in board:
+                print(i)
+            move = [int(x) for x in input("Player 1 move:").split()]
+            
+            while not valid_move(board, move, 1):
+                print("Invalid move!")
+                move = [int(x) for x in input("Player 1 move:").split()]
+            board[move[0]][move[1]] += 1
+            board = resolve_board(board)[0]
+            
+            if has_lost(get_points(board)): break
+            
+            # reference board
+            for i in board:
+                print(i)
+            move = [int(x) for x in input("Player 2 move:").split()]
+            
+            while not valid_move(board, move, -1):
+                print("Invalid move!")
+                move = [int(x) for x in input("Player 2 move:").split()]
+            board[move[0]][move[1]] -= 1
+            board = resolve_board(board)[0]
+            
+            if has_lost(get_points(board)): break
+        
+        if get_points(board)[0] == 0:
+            print("Player 2 won!")
+        if get_points(board)[1] == 1:
+            print("Player 1 won!")
