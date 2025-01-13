@@ -15,6 +15,10 @@ def get_settings() -> dict:
     
     return settings_dict
 
+def display_board(board: Board) -> None:
+    for row in board:
+        print(row)
+
 configs = get_settings()
 DEPTH = configs["DEPTH"]
 DEBUG = configs["DEBUG"]
@@ -59,8 +63,7 @@ match gamemode:
             board = resolve_board(board)[0]
             
             # reference board
-            for i in board:
-                print(i)
+            display_board(board)
         
         
         while True:
@@ -96,8 +99,7 @@ match gamemode:
             board = resolve_board(board)[0]
             
             # reference board
-            for i in board:
-                print(i)
+            display_board(board)
             
             if has_lost(get_points(board)): break
         
@@ -116,8 +118,7 @@ match gamemode:
             
         while True:
             # reference board
-            for i in board:
-                print(i)
+            display_board(board)
             move = [int(x) for x in input("Player 1 move:").split()]
             
             while not valid_move(board, move, 1):
@@ -129,8 +130,7 @@ match gamemode:
             if has_lost(get_points(board)): break
             
             # reference board
-            for i in board:
-                print(i)
+            display_board(board)
             move = [int(x) for x in input("Player 2 move:").split()]
             
             while not valid_move(board, move, -1):
