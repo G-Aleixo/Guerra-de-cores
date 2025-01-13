@@ -28,6 +28,7 @@ def get_points(board: Board) -> int:
 def has_lost(score: list[int, int]):
     if score[0] == 0 or score[1] == 0:
         return True
+    return False
 
 def undo_changes(board: Board, changes: list[tuple[int, int, int]]):
     """Undo the changes made to the board."""
