@@ -31,14 +31,14 @@ What game mode do you want:
 gamemode = int(input(""))
 
 print("""\
-Do you want to play from a specific position?
+Do you want to start from a specific position?
 [Y]es/[N]o""")
 from_start: bool = True if input("").lower() == "y" else False
 if from_start:
     board_size = int(input("What is the board size: "))
     board = []
-    print("insert the board data below")
-    print("positive numbers for player points and negative for bot points")
+    print("\nInsert the board data below")
+    print("Positive numbers for player points and negative for bot points")
     for i in range(board_size):
         board.append([int(x) for x in input().split()])
 else:
