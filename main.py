@@ -75,7 +75,7 @@ match gamemode:
             if has_lost(get_points(board)): break
             
             if DEBUG:
-                print("Pptimal enemy move:")
+                print("Optimal enemy move:")
                 before_time = time()
             result = minimax(board, MIN, DEPTH)
             if DEBUG:
