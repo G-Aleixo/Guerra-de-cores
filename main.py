@@ -141,7 +141,7 @@ match gamemode:
             
             if has_lost(get_points(board)): break
         
-        if get_points(board)[0] == 0:
+        if get_points(board)[1] == 0:
             print("Player 2 won!")
-        if get_points(board)[1] == 1:
+        if get_points(board)[0] == 0:
             print("Player 1 won!")
