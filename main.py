@@ -48,7 +48,7 @@ else:
 match gamemode:
     case 1:
         if not from_start:
-            move = [int(x) for x in input("your move:").split()]
+            move = [int(x) for x in input("Your move:").split()]
             board[move[0]][move[1]] += 3
             
             result = minimax(board, MIN, 0, moves_passed=1)
@@ -64,29 +64,29 @@ match gamemode:
         
         
         while True:
-            move = [int(x) for x in input("your move:").split()]
+            move = [int(x) for x in input("Your move:").split()]
             
             while not valid_move(board, move, 1):
                 print("Invalid move!")
-                move = [int(x) for x in input("your move:").split()]
+                move = [int(x) for x in input("Your move:").split()]
             board[move[0]][move[1]] += 1
             board = resolve_board(board)[0]
             
             if has_lost(get_points(board)): break
             
             if DEBUG:
-                print("optimal enemy move:")
+                print("Pptimal enemy move:")
                 before_time = time()
             result = minimax(board, MIN, DEPTH)
             if DEBUG:
                 print(result)
-                print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
+                print(f"Pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
                 possibilities_searched = 0
                 branches_pruned = 0
             if result[2] == inf or result[2] == -inf:
-                print(f"position evaluation: vicotory in {result[3]} moves")
+                print(f"Position evaluation: Victory in {result[3]} moves")
             if result[2] == -inf:
-                print(f"position evaluation: defeat in {result[3]} moves")
+                print(f"Position evaluation: Defeat in {result[3]} moves")
             else:
                 print(f"Position evaluation: {result[2]}")
             
