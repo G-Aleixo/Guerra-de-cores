@@ -1,7 +1,23 @@
 from game import *
 from minimax import *
 
-MAX_DEPTH = 15
+
+def get_settings() -> dict:
+    settings_dict = dict()
+    
+    with open("config.txt", "r") as settings:
+        lines = settings.readlines()
+        for line in lines:
+            if line:
+                identifier = line.split()[0]
+                setting = line.split()[1]
+                settings_dict[identifier] = int(setting)
+    
+    return settings_dict
+
+configs = get_settings()
+MAX_DEPTH = configs["MAX_DEPTH"]
+DEBUG = configs["DEBUG"]
 
 print("""\
 Welcome to color wars!

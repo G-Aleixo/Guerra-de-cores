@@ -1,0 +1,2 @@
+MAX_DEPTH 9
+DEBUG 1
