@@ -21,7 +21,7 @@ def get_positional_scores(board_size: int) -> list[list[int]]:
                 values[i][j] += 1
     return values
 
-def get_possible_moves(board: Board, player: int, is_first_move: bool = False):
+def get_possible_moves(board: Board, player: int, is_first_move: bool = False) -> list[list[int, int]]:
     possible_moves = []
     
     if is_first_move:
@@ -37,7 +37,7 @@ def get_possible_moves(board: Board, player: int, is_first_move: bool = False):
                 possible_moves.append([i, j])
     return possible_moves
 
-def get_score(board: Board):
+def get_score(board: Board) -> float:
     win = get_points(board)
     
     if win[0] == 0:
@@ -59,7 +59,7 @@ def get_score(board: Board):
     return score
     
 
-def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int = +inf, moves_passed: int = 2):
+def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int = +inf, moves_passed: int = 2) -> list[int, int, float, int]:
     global possibilities_searched, branches_pruned
     
     if player == MAX:

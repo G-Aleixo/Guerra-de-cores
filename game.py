@@ -14,7 +14,7 @@ def get_sign(number: int) -> Literal[-1, 1, 0]:
 def add_point(value: int, player: int) -> int:
     return (abs(value) + 1) * player
 
-def get_points(board: Board) -> int:
+def get_points(board: Board) -> list[int, int]:
     score = [0, 0]
     
     for i in range(len(board)):
@@ -25,12 +25,12 @@ def get_points(board: Board) -> int:
     
     return score
 
-def has_lost(score: list[int, int]):
+def has_lost(score: list[int, int]) -> bool:
     if score[0] == 0 or score[1] == 0:
         return True
     return False
 
-def undo_changes(board: Board, changes: list[tuple[int, int, int]]):
+def undo_changes(board: Board, changes: list[tuple[int, int, int]]) -> None:
     """Undo the changes made to the board."""
     for x, y, value in changes:
         board[x][y] = value
@@ -48,7 +48,7 @@ def apply_move(board: Board, move: list[int], player: int) -> list[tuple[int, in
     board[x][y] = add_point(board[x][y], player)
     return changes
 
-def valid_move(board: Board, move: list[int, int], player: int):
+def valid_move(board: Board, move: list[int, int], player: int) -> bool:
     if board[move[0]][move[1]] == 0:
         return False
     if player == 1:
