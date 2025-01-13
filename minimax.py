@@ -69,7 +69,7 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
     # [x, y, score, depth]
         
     if depth <= 0 or (has_lost(get_points(board)) and not moves_passed < 2):
-        return [-1, -1, get_score(board), depth]
+        return [-1, -1, get_score(board), moves_passed - 2]
     
     if moves_passed < 2:
         possible_moves = get_possible_moves(board, player, True)
