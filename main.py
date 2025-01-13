@@ -66,6 +66,9 @@ match gamemode:
         while True:
             move = [int(x) for x in input("your move:").split()]
             
+            while not valid_move(board, move, 1):
+                print("Invalid move!")
+                move = [int(x) for x in input("your move:").split()]
             board[move[0]][move[1]] += 1
             board = resolve_board(board)[0]
             

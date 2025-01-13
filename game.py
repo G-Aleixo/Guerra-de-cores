@@ -47,6 +47,14 @@ def apply_move(board: Board, move: list[int], player: int) -> list[tuple[int, in
     board[x][y] = add_point(board[x][y], player)
     return changes
 
+def valid_move(board: Board, move: list[int, int], player: int):
+    if board[move[0]][move[1]] == 0:
+        return False
+    if player == 1:
+        return board[move[0]][move[1]] > 0
+    if player == -1:
+        return board[move[0]][move[1]] < 0
+
 def update_board(board: Board) -> list[tuple[int, int, int]]:
     """Does a single update tick of the board and returns the changes made."""
     changes = []
