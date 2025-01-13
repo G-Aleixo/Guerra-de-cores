@@ -4,7 +4,6 @@ from time import time
 
 MAX = 1
 MIN = -1
-MAX_DEPTH = 9 # should work good? didn't test
 
 DEBUG = False
 
@@ -69,7 +68,7 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
         best = [-1, -1, +inf, +inf]
     # [x, y, score, depth]
         
-    if depth >= MAX_DEPTH or (has_lost(get_points(board)) and not moves_passed < 2):
+    if depth <= 0 or (has_lost(get_points(board)) and not moves_passed < 2):
         return [-1, -1, get_score(board), depth]
     
     if moves_passed < 2:
@@ -83,7 +82,7 @@ def minimax(board: Board, player: int, depth: int, alpha: int = -inf, beta: int 
         x, y = move[0], move[1]
         changes = apply_move(board, move, player)
         minimax_board, won = resolve_board(board)
-        score = minimax(minimax_board, -player, depth+1, alpha, beta, moves_passed + 1)
+        score = minimax(minimax_board, -player, depth - 1, alpha, beta, moves_passed + 1)
         undo_changes(board, changes)
         
         score[0], score[1] = x, y

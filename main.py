@@ -16,7 +16,7 @@ def get_settings() -> dict:
     return settings_dict
 
 configs = get_settings()
-MAX_DEPTH = configs["MAX_DEPTH"]
+DEPTH = configs["DEPTH"]
 DEBUG = configs["DEBUG"]
 
 print("""\
@@ -74,7 +74,7 @@ match gamemode:
             if DEBUG:
                 print("optimal enemy move:")
                 before_time = time()
-            result = minimax(board, MIN, 0)
+            result = minimax(board, MIN, DEPTH)
             if DEBUG:
                 print(result)
                 print(f"pruned {branches_pruned} branches and seen through {possibilities_searched} futures in {round(time()-before_time, 2)} seconds")
