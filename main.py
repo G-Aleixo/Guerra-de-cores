@@ -84,6 +84,8 @@ match gamemode:
                 possibilities_searched = 0
                 branches_pruned = 0
             if result[2] == inf or result[2] == -inf:
+                print(f"position evaluation: vicotory in {result[3]} moves")
+            if result[2] == -inf:
                 print(f"position evaluation: defeat in {result[3]} moves")
             else:
                 print(f"Position evaluation: {result[2]}")
