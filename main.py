@@ -16,8 +16,21 @@ def get_settings() -> dict:
     return settings_dict
 
 def display_board(board: Board) -> None:
+    rep = {
+        1: "1",
+        2: "2",
+        3: "3"
+    }
+    
     for row in board:
-        print(row)
+        for point in row:
+            if point > 0:
+                print(f"\033[34m{rep[point]}\033[0m", end=" ")
+            elif point < 0:
+                print(f"\033[31m{rep[abs(point)]}\033[0m", end=" ")
+            else:
+                print("0", end=" ")
+        print()
 
 configs = get_settings()
 DEPTH = configs["DEPTH"]
