@@ -1,7 +1,7 @@
 from game import *
 from minimax import *
 from os import system
-system() # color
+system("") # color
 
 def get_settings() -> dict:
     settings_dict = dict()
