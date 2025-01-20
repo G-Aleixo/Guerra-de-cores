@@ -1,6 +1,8 @@
 from game import *
 from minimax import *
+from colorama import init
 
+init()
 
 def get_settings() -> dict:
     settings_dict = dict()
